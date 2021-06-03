@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Distance Calculator</title>
+    <script
+      src="http://code.jquery.com/jquery-3.6.0.js"
+      type="text/javascript"
+    ></script>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <label for="txtOrigem"><strong>Endereço de origem</strong></label>
+            <input
+              type="text"
+              id="txtOrigem"
+              class="field"
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="txtDestino"><strong>Endereço de destino</strong></label>
+            <input
+              type="text"
+              class="field"
+              id="txtDestino"
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input
+              type="button"
+              value="Calcular distancia"
+              onclick="CalculaDistancia()"
+              class="btnNew"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div><span id="litResultado"></span></div>
+  </body>
+</html>
+<script async
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsGiKBYr4CDVCgIFO9zVgBHrGnzKIsRXA&libraries=places&callback=initAutocomplete">
+</script>
+<script type="text/javascript">
+  function CalculaDistancia() {
+    $("#litResultado").html("Aguarde...");
+    //Instanciar o DistanceMatrixService
+    var service = new google.maps.DistanceMatrixService();
+    //executar o DistanceMatrixService
+    service.getDistanceMatrix(
+      {
+        //Origem
+        origins: [$("#txtOrigem").val()],
+        //Destino
+        destinations: [$("#txtDestino").val()],
+        //Modo (DRIVING | WALKING | BICYCLING)
+        travelMode: google.maps.TravelMode.DRIVING,
+        //Sistema de medida (METRIC | IMPERIAL)
+        unitSystem: google.maps.UnitSystem.METRIC,
+        //Vai chamar o callback
+      },
+      callback
+    );
+  }
+  //Tratar o retorno do DistanceMatrixService
+  function callback(response, status) {
+    //Verificar o Status
+    if (status != google.maps.DistanceMatrixStatus.OK)
+      //Se o status não for "OK"
+      $("#litResultado").html(status);
+    else {
+      //Se o status for OK
+      //Endereço de origem = response.originAddresses
+      //Endereço de destino = response.destinationAddresses
+      //Distância = response.rows[0].elements[0].distance.text
+      //Duração = response.rows[0].elements[0].duration.text
+      $("#litResultado").html(
+        "<strong>Origem</strong>: " +
+          response.originAddresses +
+          "<br /><strong>Destino:</strong> " +
+          response.destinationAddresses +
+          "<br /><strong>Distância</strong>: " +
+          response.rows[0].elements[0].distance.text +
+          " <br /><strong>Duração</strong>: " +
+          response.rows[0].elements[0].duration.text
+      );
+    }
+  }
+
+  let autocomplete;
+  let autocomplete2;
+
+  function initAutocomplete() {
+    autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById('txtOrigem'),
+      {
+        types: ['establishment'],
+        componentRestrictions: {'country' : ['BR']},
+        fields: ['place_id', 'geometry', 'name']
+      }
+    );
+    autocomplete2 = new google.maps.places.Autocomplete(
+      document.getElementById('txtDestino'),
+      {
+        types: ['establishment'],
+        componentRestrictions: {'country' : ['BR']},
+        fields: ['place_id', 'geometry', 'name']
+      }
+    );
+  }
+</script>
+
